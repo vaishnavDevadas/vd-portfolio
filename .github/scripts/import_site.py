@@ -41,5 +41,5 @@ with ThreadPoolExecutor(max_workers=6) as pool:
     for future in as_completed([pool.submit(fetch, item) for item in items]):
         print('Verified', future.result(), flush=True)
 (ROOT / '.nojekyll').touch()
-assert len(items) == 166
+assert (ROOT / 'index.html').exists()\nassert len(items) == 166
 print('All 166 portfolio files verified.')
