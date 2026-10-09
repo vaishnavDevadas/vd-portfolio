@@ -51,5 +51,14 @@ async function turn(n){if(busy||n<0||n>=spreads.length||n===current)return;busy=
  render(n);prev.disabled=next.disabled=true;
  if(!matchMedia('(prefers-reduced-motion: reduce)').matches){const wrap=stage.firstElementChild,sheet=(forward?wrap.firstElementChild:wrap.lastElementChild).cloneNode();sheet.className='ep-sheet '+(forward?'backward':'forward');const base=forward?wrap.firstElementChild:wrap.lastElementChild;wrap.append(sheet);base.style.visibility='hidden';await sheet.animate([{transform:`rotateY(${forward?'':'-'}90deg)`,filter:'brightness(.65)'},{transform:'rotateY(0deg)',filter:'brightness(1)'}],{duration:350,easing:'ease-out'}).finished;sheet.remove();base.style.visibility='';}
  }catch(e){if(id===sequence)render(current);}finally{if(id===sequence){busy=false;prev.disabled=current===0;next.disabled=current===14;}}}
-content.addEventListener('click',e=>{if(e.target.closest('[data-reader]')){render(0);reader.showModal();}});prev.addEventListener('click',()=>turn(current-1));next.addEventListener('click',()=>turn(current+1));reader.addEventListener('keydown',e=>{if(e.key==='ArrowRight'||e.key==='ArrowLeft'){e.preventDefault();turn(current+(e.key==='ArrowRight'?1:-1));}});stage.addEventListener('touchstart',e=>swipe=e.changedTouches[0].clientX,{passive:true});stage.addEventListener('touchend',e=>{const delta=e.changedTouches[0].clientX-swipe;if(Math.abs(delta)>45)turn(current+(delta<0?1:-1));},{passive:true});reader.addEventListener('close',()=>{sequence++;busy=false;stage.getAnimations({subtree:true}).forEach(a=>a.cancel());});
+const guideHash='#welcome-guide';
+function openGuide(updateHash=true){
+ if(!dialog.open){show(0);dialog.showModal();}
+ render(0);
+ if(!reader.open)reader.showModal();
+ if(updateHash&&location.hash!==guideHash)history.pushState(null,'',guideHash);
+}
+content.addEventListener('click',e=>{if(e.target.closest('[data-reader]'))openGuide();});prev.addEventListener('click',()=>turn(current-1));next.addEventListener('click',()=>turn(current+1));reader.addEventListener('keydown',e=>{if(e.key==='ArrowRight'||e.key==='ArrowLeft'){e.preventDefault();turn(current+(e.key==='ArrowRight'?1:-1));}});stage.addEventListener('touchstart',e=>swipe=e.changedTouches[0].clientX,{passive:true});stage.addEventListener('touchend',e=>{const delta=e.changedTouches[0].clientX-swipe;if(Math.abs(delta)>45)turn(current+(delta<0?1:-1));},{passive:true});reader.addEventListener('close',()=>{sequence++;busy=false;stage.getAnimations({subtree:true}).forEach(a=>a.cancel());if(location.hash===guideHash)history.replaceState(null,'','#applications');});
+addEventListener('hashchange',()=>{if(location.hash===guideHash)openGuide(false);});
+if(location.hash===guideHash)openGuide(false);
 })();
